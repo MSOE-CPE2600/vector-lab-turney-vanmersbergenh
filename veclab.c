@@ -19,7 +19,7 @@ char user_input2[50];
 char user_input3[50];
 char user_input4[50];
 char user_input5[50];
-char *token
+char *token1;
 char *token2;
 char *token3;
 char *token4;
