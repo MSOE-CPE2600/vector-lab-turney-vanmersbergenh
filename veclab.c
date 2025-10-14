@@ -3,91 +3,355 @@
 * @brief 3D Vector operations
 * Author: Hunter Van Mersbergen
 * Class: CPE2600 121
-* Date: 10/05/25
-* Compile: gcc -o veclab veclab.c vecmath.c
+* Date: 10/09/25
+* Compile: make
 ***********************************************************/
-#include "vector.h"
+#include "vectarray.h"
+#include "vecmath.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+
+
 // use strtok()
 int exit_program = 0;
 char input[80] = {0};
+char *token[5] = {NULL};
 
-double x, y, z;
-char user_input1[50];
-char user_input2[50];
-char user_input3[50];
-char user_input4[50];
-char user_input5[50];
-char *token1;
-char *token2;
-char *token3;
-char *token4;
-char *token5;
-
-int main(void) 
+/**
+* prints the commands list
+*/
+void print_help()
 {
-    //clear_vectors();
+    printf("===Commands:\n");
+    printf(">>  list                  - List all vectors\n");
+    printf(">>  <name> = x y z        - Create or change vector\n");
+    printf(">>  <name> + <name>       - Add two vectors\n");
+    printf(">>  <name> - <name>       - Subtract two vectors\n");
+    printf(">>  <name> * scalar       - Multiply vector by scalar\n");
+    printf(">>  <name> . <name>       - Dot product of two vectors\n");
+    printf(">>  <name> x <name>       - Cross product of two vectors\n");
+    printf(">>  <name> = <operation>  - Assignment after operation\n");
+    printf(">>  clear                 - Clear all vectors\n");
+    printf(">>  quit/exit             - Exit the program\n");
+}
+
+int main(int argc, char* argv[]) 
+{
+    if (argc > 1)
+    {
+        // check for -h flag
+        if (strcmp(argv[1], "-h") == 0)
+        {
+            print_help();
+        }
+    }
+    clear_vectors();
     while (exit_program == 0)
     {
+        token[0] = NULL;
+        token[1] = NULL;
+        token[2] = NULL;
+        token[3] = NULL;
+        token[4] = NULL;
+
+        printf("input> ");
         fgets(input, 80, stdin);
-        token1 = strtok(input, " ");
-        token2 = strtok(NULL, " ");
-        token3 = strtok(NULL, " ");
-        token4 = strtok(NULL, " ");
-        token5 = strtok(NULL, " ");
-        printf("%s, %s, %s, %s, %s\n", token1, token2, token3, token4, token5);
+        input[strcspn(input, "\n")] = 0;
 
-        if (strcmp(token1, "list") == 0)
+        // tokenize the input
+        token[0] = strtok(input, " ");
+        for (int i = 1; i < 5; i++)
         {
-            //list_vectors();
+            if (token[i - 1] != NULL)
+            {
+                token[i] = strtok(NULL, " ");
+            }
+            else
+            {
+                token[i] = NULL;
+            }
         }
-        else if (strcmp(token1, "quit") == 0 || strcmp(token1, "exit") == 0)
+
+        if (token[0] != NULL)
         {
-            exit_program = 1;
-            printf("Exiting program.\n");
+            if (strcmp(token[0], "list") == 0)
+            {
+                list_vectors();
+
+            }
+            else if (strcmp(token[0], "quit") == 0 || strcmp(token[0], "exit") == 0)
+            {
+                exit_program = 1;
+                printf("Exiting program.\n");
+            }
+            else if (strcmp(input, "clear") == 0)
+            {
+                clear_vectors();
+            }
+            else if (strcmp(input, "help") == 0 || strcmp(input, "") == 0)
+            {
+                print_help();
+            }
+            else if (is_number(token[0]))
+            {
+                if (token[1] != NULL && token[2] != NULL)
+                {
+                    if (strcmp(token[1], "=") == 0)
+                    {
+                        printf("Error: vector name cannot be a number\n");
+                    }
+                    else if (strcmp(token[1], "+") == 0)
+                    {
+                        if (is_number(token[2]))
+                        {
+                            printf("Result: %.2f\n", atof(token[0]) + atof(token[2]));
+                        }
+                        else 
+                        {
+                            printf("Error: cannot add a scalar by a vector\n");
+                        }
+                    }
+                    else if (strcmp(token[1], "-") == 0)
+                    {
+                        if (is_number(token[2]))
+                        {
+                            printf("Result: %.2f\n", atof(token[0]) - atof(token[2]));
+                        }
+                        else
+                        {
+                            printf("Error: cannot add a scalar by a vector\n");
+                        }
+                    }
+                    else if (strcmp(token[1], "*") == 0)
+                    {
+                        if (is_number(token[2]))
+                        {
+                            printf("Result: %.2f\n", atof(token[0]) * atof(token[2]));
+                        }
+                        else 
+                        {
+                            mult_vector(token[2], atof(token[0]), 0);
+                        }
+                    }
+                } 
+                else
+                {
+                    if (token[1] == NULL)
+                    {
+                        printf("Result: %.2f\n", atof(token[0]));
+                    }
+                    else
+                    {
+                        printf("Invalid command\n");
+                    }
+                }
+            }
+            else if (token[1] != NULL)
+            {
+                if (strcmp(token[1], "+") == 0)
+                {
+                    if (token[2] == NULL)
+                    {
+                        printf("Error: Invalid addition command. Usage: <name1> + <name2>\n");
+                    }
+                    else 
+                    {
+                        if (is_number(token[2]))    
+                        {
+                            add_scalar(token[0], atof(token[2]), 0);
+                        }
+                        else 
+                        {
+                            add_vector(token[0], token[2], 0);
+                        }                    
+                    }
+                }
+                else if (strcmp(token[1], "-") == 0)
+                {
+                    if (token[2] == NULL)
+                    {
+                        printf("Error: Invalid subtraction command. Usage: <name1> - <name2>\n");
+                    }
+                    else 
+                    {
+                        if (is_number(token[2]))
+                        {
+                            sub_scalar(token[0], atof(token[2]), 0);
+                        }
+                        else 
+                        {
+                            sub_vector(token[0], token[2], 0);
+                        }
+                    }
+                }
+                else if (strcmp(token[1], "*") == 0)
+                {
+                    if (token[2] == NULL)
+                    {
+                        printf("Error: missing second operand for multiplication\n");
+                    }
+                    else if (is_number(token[2]))
+                    {
+                        mult_vector(token[0], atof(token[2]), 0);
+                    }
+                    else
+                    {
+                        printf("Error: Must multiply vector by scalar only.\n");
+                    }
+                }
+                else if (strcmp(token[1], ".") == 0)
+                {
+                    if (token[2] == NULL)
+                    {
+                        printf("Error: missing second operand for dot product\n");
+                    }
+                    else if (is_number(token[2]))
+                    {
+                        printf("Error: dot product must be between 2 vectors\n");
+                    }
+                    else
+                    {
+                        dot_vector(token[0], token[2]);
+                    }
+                }
+                else if (strcmp(token[1], "x") == 0)
+                {
+                    if (token[2] == NULL)
+                    {
+                        printf("Error: missing second operand for cross product\n");
+                    }
+                    else if (is_number(token[2]))
+                    {
+                        printf("Error: cross product must be between 2 vectors\n");
+                    }
+                    else
+                    {
+                        cross_vector(token[0], token[2], 0);
+                    }
+                }
+                else if (strcmp(token[1], "=") == 0)
+                {
+                    if (token[2] == NULL)
+                    {
+                        printf("Error: Invalid vector creation command. Usage: <name> = x y z\n");
+                    } else {
+                        if (token[3] == NULL)
+                        {
+                            if (is_number(token[2]))
+                            {
+                                new_vector(token[0], atof(token[2]), 0, 0, NULL);
+                            }
+                            else
+                            {
+                                new_vector(token[0], 0, 0, 0, token[2]);
+                            }
+                        }
+                        else if (strcmp(token[3], "*") == 0 && token[4] != NULL)
+                        {
+                            if (!is_number(token[2]) && (is_number(token[4])))
+                            {
+                                new_vector(token[0], 0, 0, 0, token[2]);
+                                mult_vector(token[0], atof(token[4]), 1);
+                            }
+                            else if (is_number(token[2]) && !is_number(token[4]))
+                            {
+                                new_vector(token[0], 0, 0, 0, token[4]);
+                                mult_vector(token[0], atof(token[2]), 1);
+                            }
+                            else if (is_number(token[2]) && is_number(token[4]))
+                            {
+                                printf("Error: Cannot multiply two scalars to create a vector.\n");
+                            }
+                            else
+                            {
+                                printf("Error: Cannot multiply two vectors to create a vector.\n");
+                            }
+                        }
+                        else if (strcmp(token[3], "-") == 0 && token[4] != NULL)
+                        {
+                            if (!is_number(token[2]) && !is_number(token[4]))
+                            {
+                                new_vector(token[0], 0, 0, 0, token[2]);
+                                sub_vector(token[0], token[4], 1);
+                            }
+                            else if (!is_number(token[2]) && is_number(token[4]))
+                            {
+                                new_vector(token[0], 0, 0, 0, token[2]);
+                                sub_scalar(token[0], atof(token[4]), 1);
+                            }
+                            else if ((is_number(token[2])) && (is_number(token[4])))
+                            {
+                                printf("Error: Cannot subtract two scalars to create a vector.\n");
+                            }
+                            else
+                            {
+                                printf("Error: Cannot subtract a scalar by a vector to create a vector.\n");
+                            }
+                        }
+                        else if (strcmp(token[3], "+") == 0 && token[4] != NULL)
+                        {
+                            if (!is_number(token[2]) && !is_number(token[4]))
+                            {
+                                new_vector(token[0], 0, 0, 0, token[2]);
+                                add_vector(token[0], token[4], 1);
+                            }
+                            else if (!is_number(token[2]) && is_number(token[4]))
+                            {
+                                new_vector(token[0], 0, 0, 0, token[2]);
+                                add_scalar(token[0], atof(token[4]), 1);
+                            }
+                            else if ((is_number(token[2])) && (is_number(token[4])))
+                            {
+                                printf("Error: Cannot add two scalars to create a vector\n");
+                            }
+                            else
+                            {
+                                printf("Error: Cannot add a scalar by a vector to create a vector\n");
+                            }
+                        }
+                        else if (strcmp(token[3], "x") == 0 && token[4] != NULL)
+                        {
+                            if (!is_number(token[2]) && (!is_number(token[4])))
+                            {
+                                new_vector(token[0], 0, 0, 0, token[2]);
+                                cross_vector(token[0], token[4], 1);
+                            }
+                            else
+                            {
+                                printf("Error: cross product must include 2 vectors\n");
+                            }
+                        }
+                        else 
+                        {
+                            if (token[4] != NULL)
+                            {
+                                if (is_number(token[2]) && is_number(token[3]) && is_number(token[4]))
+                                {
+                                    new_vector(token[0], atof(token[2]), atof(token[3]), atof(token[4]), NULL);
+                                }
+                                else
+                                {
+                                    printf("invalid command\n");
+                                }
+                            }
+                            else
+                            {
+                                printf("invalid command\n");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    printf("invalid command\n");
+                }
+            }
+            else
+            {
+                print_vector(token[0]);
+            }
         }
-        // else if (strcmp(input, "clear") == 0)
-        // {
-        //     clear_vectors();
-        // }
-        // else if (strcmp(input, "help") == 0 || strcmp(input, "") == 0)
-        // {
-        //     display_help();
-        // }
-        // else
-        // {
-        //     strtok(NULL, " ");
-        //     if (strcmp(input, "+") == 0)
-        //     {
-        //         add_vector(name, input, strtok(NULL, " "), z);
-        //     }
-        //     else if (strcmp(input, "-") == 0)
-        //     {
-        //         sub_vector(name, name);
-        //     }
-        //     else if (strcmp(input, "*") == 0)
-        //     {
-        //         mult_vector(name, x);
-        //     }
-        //     else if (strcmp(input, ".") == 0)
-        //     {
-        //         dot_vector(name, x, y, z);
-        //     }
-        //     else if (strcmp(input, "x") == 0)
-        //     {
-        //         cross_vector(name, x, y, z);
-        //     }
-        //     else if (strcmp(input, "=") == 0)
-        //     {
-        //         new_vector(name, atof(strtok(NULL, " ")), atof(strtok(NULL, " ")), atof(strtok(NULL, " ")));
-        //     }
-        //     else
-        //     {
-        //         print_vector(name);
-        //     }
-        // }
     }
-
     return 0;
 }

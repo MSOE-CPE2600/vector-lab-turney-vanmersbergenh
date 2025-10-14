@@ -3,19 +3,18 @@
 * @brief 3D Vector math operations header
 * Author: Hunter Van Mersbergen
 * Class: CPE2600 121
-* Date: 10/05/25
-* Compile: gcc -o veclab veclab.c vecmath.c
+* Date: 10/09/25
 ***********************************************************/
 #ifndef VECMATH_H
 #define VECMATH_H
 
-vector add_vector(const vector* a, const vector* b);
-vector sub_vector(const vector* a, const vector* b);
-vector mult_vector(const vector* a, double scalar);
-double dot_vector(const vector* a, const vector* b);
-vector cross_vector(const vector* a, const vector* b);
-vector new_vector(const char* name, double x, double y, double z);
-void print_vector(const vector* v);
-void clear_vectors();
+int is_number(const char* token);
+void add_vector(const char* name, const char* name2, int stored);
+void sub_vector(const char* name, const char* name2, int stored);
+void mult_vector(const char* name, double scalar, int stored);
+void dot_vector(const char* name, const char* name2);
+void cross_vector(const char* name, const char* name2, int stored);
+void add_scalar(const char* name, float scalar, int stored);
+void sub_scalar(const char* name, float scalar, int stored);
 
-#endif // VECMATH_H
+#endif

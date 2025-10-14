@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -Wall
 LDFLAGS=
-SOURCES= veclab.c vecmath.c
+SOURCES= veclab.c vecmath.c vectarray.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=veclab
 all: $(SOURCES) $(EXECUTABLE)
