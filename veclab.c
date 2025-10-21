@@ -24,8 +24,10 @@ char *token[5] = {NULL};
 void print_help()
 {
     printf("===Commands:\n");
+    printf(">>  help                  - Display commands list\n");
     printf(">>  list                  - List all vectors\n");
     printf(">>  load <filename.csv>   - Load vectors from a csv file\n");
+    printf(">>  save <filename.csv>   - Save vectors to a csv file\n");
     printf(">>  <name> = x y z        - Create or change vector\n");
     printf(">>  <name> + <name>       - Add two vectors\n");
     printf(">>  <name> - <name>       - Subtract two vectors\n");
