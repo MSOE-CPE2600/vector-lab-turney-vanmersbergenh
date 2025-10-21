@@ -1,9 +1,9 @@
 /**********************************************************
 * @file veclab.c
-* @brief 3D Vector operations
+* @brief 3D Vector operations with file saving and loading
 * Author: Hunter Van Mersbergen
 * Class: CPE2600 121
-* Date: 10/09/25
+* Date: 10/14/25
 * Compile: make
 ***********************************************************/
 #include "vectarray.h"
@@ -25,6 +25,7 @@ void print_help()
 {
     printf("===Commands:\n");
     printf(">>  list                  - List all vectors\n");
+    printf(">>  load <filename.csv>   - Load vectors from a csv file\n");
     printf(">>  <name> = x y z        - Create or change vector\n");
     printf(">>  <name> + <name>       - Add two vectors\n");
     printf(">>  <name> - <name>       - Subtract two vectors\n");
@@ -46,7 +47,6 @@ int main(int argc, char* argv[])
             print_help();
         }
     }
-    clear_vectors();
     while (exit_program == 0)
     {
         token[0] = NULL;
@@ -78,11 +78,33 @@ int main(int argc, char* argv[])
             if (strcmp(token[0], "list") == 0)
             {
                 list_vectors();
-
+            }
+            else if (strcmp(token[0], "load") == 0)
+            {
+                if(token[1] != NULL)
+                {
+                    load(token[1]);
+                }
+                else
+                {
+                    printf("Error: Missing filename to load from. Example: load data.csv\n");
+                }
+            }
+            else if (strcmp(token[0], "save") == 0)
+            {
+                if(token[1] != NULL)
+                {
+                    save(token[1]);
+                }
+                else
+                {
+                    printf("Error: Missing filename to save to. Example: save data.csv\n");
+                }
             }
             else if (strcmp(token[0], "quit") == 0 || strcmp(token[0], "exit") == 0)
             {
                 exit_program = 1;
+                clear_vectors();
                 printf("Exiting program.\n");
             }
             else if (strcmp(input, "clear") == 0)

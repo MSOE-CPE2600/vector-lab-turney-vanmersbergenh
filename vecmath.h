@@ -3,7 +3,7 @@
 * @brief 3D Vector math operations header
 * Author: Hunter Van Mersbergen
 * Class: CPE2600 121
-* Date: 10/09/25
+* Date: 10/14/25
 ***********************************************************/
 #ifndef VECMATH_H
 #define VECMATH_H

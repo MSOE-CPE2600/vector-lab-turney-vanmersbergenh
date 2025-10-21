@@ -3,16 +3,15 @@
 * @brief 3D Vector array operations
 * Author: Hunter Van Mersbergen
 * Class: CPE2600 121
-* Date: 10/09/25
+* Date: 10/21/25
 * Compile: make
 ***********************************************************/
 #include "vectarray.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define MAX_VECTORS 10
-
-vector vector_array[10];
+vector* vector_array;
 int vector_count = 0;
 
 /**
@@ -30,16 +29,35 @@ vector* get_vector(int index)
 }
 
 /**
+* Allocates a space in memory for storing vectors
+*/
+void allocate()
+{
+    if (vector_count < 1)
+    {
+        vector_array = (vector*) malloc(sizeof(vector)*5);
+    }
+    else 
+    {
+        vector_array = (vector*) realloc(vector_array, sizeof(vector)*(vector_count+5));
+    }
+}
+
+/**
 * Clears the vectors stored in the list
 */
 void clear_vectors()
 {
-    vector_count = 0;
-    for (int i = 0; i < MAX_VECTORS; i++)
+    if (vector_count > 0)
     {
-        vector_array[i] = (vector){"", 0, 0, 0};
+        free(vector_array);    
+        printf("All vectors cleared.\n");
+        vector_count = 0;
     }
-    printf("All vectors cleared.\n");
+    else
+    {
+        printf("No vectors to clear.\n");
+    }
 }
 
 /**
@@ -99,19 +117,14 @@ int find_vector(const char* name)
 * @param y y value of the vector
 * @param z z value of the vector
 * @param name2 name of the vector to copy, NULL if unused
+* @return 1 if the vector was added, 0 otherwise
 */
-void new_vector(const char* name, double x, double y, double z, const char* name2)
+int new_vector(const char* name, double x, double y, double z, const char* name2)
 {
-    if (vector_count >= MAX_VECTORS)
-    {
-        printf("Error: Vector array full.\n");
-        return;
-    }
-
     if (strlen(name) <= 0 || strlen(name) >= 10)
     {
         printf("Error: Invalid vector name length (must be < 10 characters).\n");
-        return;
+        return 0;
     }
 
     if (name2 != NULL)
@@ -121,7 +134,7 @@ void new_vector(const char* name, double x, double y, double z, const char* name
             if (strcmp(name, name2) == 0)
             {
                 // vectors are the same
-                return;
+                return 1;
             }
 
             if (find_vector(name) != -1)
@@ -133,7 +146,11 @@ void new_vector(const char* name, double x, double y, double z, const char* name
                 existing->z = copy->z;
                 printf("Vector '%s' updated by copying from '%s': (%.2f, %.2f, %.2f)\n",
                     name, name2, existing->x, existing->y, existing->z);
-                return;
+                return 1;
+            }
+            if ((vector_count % 5) == 0)
+            {
+                allocate();
             }
             vector* copy = &vector_array[find_vector(name2)];
             vector_array[vector_count].x = copy->x;
@@ -143,12 +160,12 @@ void new_vector(const char* name, double x, double y, double z, const char* name
             vector_count++;
             printf("Vector '%s' created by copying from '%s': (%.2f, %.2f, %.2f)\n", 
                 name, name2, copy->x, copy->y, copy->z);
-            return;
+            return 1;
         }
         else
         {
             printf("Error: Source vector '%s' not found for copying.\n", name2);
-            return;
+            return 0;
         }
     }
 
@@ -159,9 +176,12 @@ void new_vector(const char* name, double x, double y, double z, const char* name
         existing->y = y;
         existing->z = z;
         printf("Vector '%s' updated: (%.2f, %.2f, %.2f)\n", name, x, y, z);
-        return;
+        return 1;
     }
-
+    if ((vector_count % 5) == 0)
+    {
+        allocate();
+    }
     vector_array[vector_count].x = x;
     vector_array[vector_count].y = y;
     vector_array[vector_count].z = z;
@@ -169,7 +189,63 @@ void new_vector(const char* name, double x, double y, double z, const char* name
     vector_count++;
 
     printf("Vector '%s' created: (%.2f, %.2f, %.2f)\n", name, x, y, z);
+    return 1;
 }
 
+/**
+* Loads vectors from a csv file
+* @param filename the name of the file
+*/
+void load(char* filename)
+{
+    printf("loading from file...\n");
+    char name[10];
+    float x;
+    float y;
+    float z;
+    int count = 0;
+    int errors = 0;
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("Error opening file: %s", filename);
+        return;
+    }
+    while (fscanf(file, "%9[^,],%f,%f,%f ", name, &x, &y, &z) == 4)
+    {
+        if (new_vector(name, x, y, z, NULL)) 
+        {
+            count++;
+        }
+        else
+        {
+            errors++;
+        }
+    }
+    printf("Loaded %d vectors successfully from %s.\n", count, filename);
+    if (errors > 0)
+    {
+        printf("%d vectors not added due to errors\n", errors);
+    }
+    fclose(file);
+    return;
+}
 
-
+/**
+* Save the current vectors to a csv file
+* @param filename the name of the file
+*/
+void save(char* filename)
+{
+    FILE *file = fopen(filename, "w");
+    int count;
+    for (int i = 0; i < vector_count; i++)
+    {
+        fprintf(file, "%s,%f,%f,%f\n", vector_array[i].name,
+            vector_array[i].x, vector_array[i].y, vector_array[i].z);
+        count++;
+    }
+    fclose(file);
+    printf("Successfully saved %d vectors to %s.\n", count, filename);
+    return;
+}

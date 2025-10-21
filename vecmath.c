@@ -3,7 +3,7 @@
 * @brief 3D Vector math operations
 * Author: Hunter Van Mersbergen
 * Class: CPE2600 121
-* Date: 10/09/25
+* Date: 10/14/25
 * Compile: gcc -o veclab veclab.c vecmath.c
 ***********************************************************/
 #include "vectarray.h"
