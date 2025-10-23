@@ -208,7 +208,7 @@ void load(char* filename)
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
-        printf("Error opening file: %s", filename);
+        printf("Error opening file: %s\n", filename);
         return;
     }
     while (fscanf(file, "%9[^,],%f,%f,%f ", name, &x, &y, &z) == 4)
@@ -238,7 +238,7 @@ void load(char* filename)
 void save(char* filename)
 {
     FILE *file = fopen(filename, "w");
-    int count;
+    int count = 0;
     for (int i = 0; i < vector_count; i++)
     {
         fprintf(file, "%s,%f,%f,%f\n", vector_array[i].name,
